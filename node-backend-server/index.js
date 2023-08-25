@@ -326,6 +326,11 @@ async function requestHandler(query) {
 
 // Handling all client requests through one endpoint
 app.all('/', async function(req, res, next) {
+    res.append('Access-Control-Allow-Origin', ['*']);
+    res.append('Access-Control-Allow-Methods', '*');
+    res.append('Access-Control-Allow-Headers', '*');
+    res.append('Accept', '*/*');
+
     try {
       const resObj = await requestHandler(req.query);
       if (!resObj) {

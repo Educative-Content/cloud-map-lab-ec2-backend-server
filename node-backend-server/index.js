@@ -25,9 +25,13 @@ const dynamoDbClient = new DynamoDBClient(config);
 const documentClient = DynamoDBDocumentClient.from(dynamoDbClient);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: "*",
+  headers: "*",
+}));
 
-const port = process.env.PORT || 8000;
+const port = 8000;
 
 // Fetching table name from the AWS Cloud Map service
 async function getTableName() {
@@ -162,19 +166,10 @@ async function deleteItemDB(id, tableName) {
 // Helper function to handle request, it's the same as the handle
 // function of our Lambda function
 async function requestHandler(query) {
-    // Pre-configuring header parameters
-    const responseHeaders = {
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Methods': '*',
-        'Accept': '*/*',
-        'content-type': 'application/json'
-    };
-
     // Sending an Error if to query parameters are provided
     if (!query) {
         return {
             'statusCode': 400,
-            'headers': responseHeaders,
             'body': JSON.stringify({
                 'success': false,
                 'error': 'Invalid Request: Action not provided'
@@ -189,7 +184,6 @@ async function requestHandler(query) {
     if (!tableName) {
         return {
             'statusCode': 500,
-            'headers': responseHeaders,
             'body': JSON.stringify({
                 'success': false,
                 'error': 'Internal Server Error: Could not find the Database'
@@ -217,7 +211,7 @@ async function requestHandler(query) {
             if (allCourses.error) {
                 return {
                     'statusCode': 500,
-                    'headers': responseHeaders,
+    
                     'body': JSON.stringify({
                         'success': false,
                         'error': `Unable to process request for ${requestAction}: ${allCourses.error}`
@@ -228,7 +222,7 @@ async function requestHandler(query) {
             // Returning response
             return {
                 'statusCode': 200,
-                'headers': responseHeaders,
+
                 'body': JSON.stringify({
                     'success': true,
                     'action': requestAction,
@@ -243,7 +237,7 @@ async function requestHandler(query) {
             if (addCourse.error) {
                 return {
                     'statusCode': 500,
-                    'headers': responseHeaders,
+    
                     'body': JSON.stringify({
                         'success': false,
                         'error': `Unable to process request for ${requestAction}: ${addCourse.error}`
@@ -254,7 +248,7 @@ async function requestHandler(query) {
             // Returning response
             return {
                 'statusCode': 200,
-                'headers': responseHeaders,
+
                 'body': JSON.stringify({
                     'success': true,
                     'action': requestAction,
@@ -268,7 +262,7 @@ async function requestHandler(query) {
             if (editCourse.error) {
                 return {
                     'statusCode': 500,
-                    'headers': responseHeaders,
+    
                     'body': JSON.stringify({
                         'success': false,
                         'error': `Unable to process request for ${requestAction}: ${editCourse.error}`
@@ -279,7 +273,7 @@ async function requestHandler(query) {
             // Returning response
             return {
                 'statusCode': 200,
-                'headers': responseHeaders,
+
                 'body': JSON.stringify({
                     'success': true,
                     'action': requestAction,
@@ -293,7 +287,7 @@ async function requestHandler(query) {
             if (removeCourse.error) {
                 return {
                     'statusCode': 500,
-                    'headers': responseHeaders,
+    
                     'body': JSON.stringify({
                         'success': false,
                         'error': `Unable to process request for ${requestAction}: ${removeCourse.error}`
@@ -304,7 +298,7 @@ async function requestHandler(query) {
             // Returning response
             return {
                 'statusCode': 200,
-                'headers': responseHeaders,
+
                 'body': JSON.stringify({
                     'success': true,
                     'action': requestAction,
@@ -315,7 +309,7 @@ async function requestHandler(query) {
         default:
             return {
                 'statusCode': 400,
-                'headers': responseHeaders,
+
                 'body': JSON.stringify({
                     'success': false,
                     'error': `Invalid Request: Action ${requestAction} ${typeof requestAction} not found`,
@@ -326,11 +320,6 @@ async function requestHandler(query) {
 
 // Handling all client requests through one endpoint
 app.all('/', async function(req, res, next) {
-    res.append('Access-Control-Allow-Origin', ['*']);
-    res.append('Access-Control-Allow-Methods', '*');
-    res.append('Access-Control-Allow-Headers', '*');
-    res.append('Accept', '*/*');
-
     try {
       const resObj = await requestHandler(req.query);
       if (!resObj) {

@@ -34,7 +34,7 @@ async function getTableName() {
     // Command to to get service discovery instance with attribute "name" as
     // dynamodb-table
     const findDbNameCommand = new DiscoverInstancesCommand({
-        NamespaceName: 'backend-service-namespace',
+        NamespaceName: 'backend-services-namespace',
         ServiceName: 'dynamodb-data-service',
         QueryParameters: {
             'name': 'dynamodb-table',

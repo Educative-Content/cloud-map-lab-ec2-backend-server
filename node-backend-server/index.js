@@ -231,7 +231,7 @@ async function requestHandler(query) {
 
         // The case when the request query is to add a new course
         case 'addCourse':
-            const addCourse = await putItemDB({'id': courseId, 'courseName': requestData.courseTitle, 'imgUrl': requestData.imgUrl, 'courseCoverArt': requestData.courseUrl, 'courseAuthor': requestData.courseAuthor }, tableName);
+            const addCourse = await putItemDB(requestData, tableName);
 
             if (addCourse.error) {
                 return {
@@ -256,7 +256,7 @@ async function requestHandler(query) {
 
         // The case when the request query is to edit an existing course
         case 'editCourse':
-            const editCourse = await updateItemDB({'id': courseId, 'courseName': requestData.courseTitle, 'imgUrl': requestData.imgUrl, 'courseCoverArt': requestData.courseUrl, 'courseAuthor': requestData.courseAuthor }, tableName);
+            const editCourse = await updateItemDB(requestData, tableName);
 
             if (editCourse.error) {
                 return {

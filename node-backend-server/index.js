@@ -63,8 +63,8 @@ async function putItemDB(courseObject, tableName) {
             Item: {
                 ID: courseObject.id,
                 Name: courseObject.courseName,
-                CoverArt: courseObject.courseCoverArt,
-                Url: courseObject.courseUrl,
+                CoverArt: decodeURIComponent(courseObject.courseCoverArt),
+                Url: decodeURIComponent(courseObject.courseUrl),
                 Author: courseObject.courseAuthor
             },
         });
@@ -88,8 +88,8 @@ async function updateItemDB(courseObject, tableName) {
             ExpressionAttributeValues: {
                 ':id': courseObject.id,
                 ':name': courseObject.courseName,
-                ':coverart': courseObject.courseCoverArt,
-                ':url': courseObject.courseUrl,
+                ':coverart': decodeURIComponent(courseObject.courseCoverArt),
+                ':url': decodeURIComponent(courseObject.courseUrl),
                 ':author': courseObject.courseAuthor
             },
             ReturnValues: 'ALL_NEW',
@@ -106,7 +106,7 @@ async function updateItemDB(courseObject, tableName) {
 // The following custom function fetches a specific course in the
 // DynamoDB database
 async function getItemDB(id, tableName) {
-    if(!id)
+    if(!id && id !== 0)
         return null
     try {
         const command = new GetCommand({

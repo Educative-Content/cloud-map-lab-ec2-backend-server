@@ -61,11 +61,11 @@ async function putItemDB(courseObject, tableName) {
         const command = new PutCommand({
             TableName: tableName,
             Item: {
-                ID: courseObject.id,
-                Name: courseObject.courseName,
-                CoverArt: decodeURIComponent(courseObject.courseCoverArt),
-                Url: decodeURIComponent(courseObject.courseUrl),
-                Author: courseObject.courseAuthor
+                "ID": Number(courseObject.id),
+                "CourseName": courseObject.courseName,
+                "CoverArt": decodeURIComponent(courseObject.courseCoverArt),
+                "CourseUrl": decodeURIComponent(courseObject.courseUrl),
+                "Author": courseObject.courseAuthor
             },
         });
         const response = await documentClient.send(command);
@@ -82,15 +82,14 @@ async function updateItemDB(courseObject, tableName) {
         const command = new UpdateCommand({
             TableName: tableName,
             Key: {
-                ID: courseObject.id,
+                ID: Number(courseObject.id),
             },
-            UpdateExpression: 'SET ID = :id, Name = :name, CoverArt = :coverArt, Url = :url, Author = :author',
+            UpdateExpression: "SET CourseName = :name, CourseUrl = :url, CoverArt = :coverart, Author = :author",
             ExpressionAttributeValues: {
-                ':id': courseObject.id,
-                ':name': courseObject.courseName,
-                ':coverart': decodeURIComponent(courseObject.courseCoverArt),
-                ':url': decodeURIComponent(courseObject.courseUrl),
-                ':author': courseObject.courseAuthor
+                ":name": courseObject.courseName,
+                ":coverart": decodeURIComponent(courseObject.courseCoverArt),
+                ":url": decodeURIComponent(courseObject.courseUrl),
+                ":author": courseObject.courseAuthor
             },
             ReturnValues: 'ALL_NEW',
         });
@@ -112,7 +111,7 @@ async function getItemDB(id, tableName) {
         const command = new GetCommand({
             TableName: tableName,
             Key: {
-                ID: id
+                ID: Number(id)
             }
         });
 
@@ -129,16 +128,16 @@ async function getAllItemsDB(tableName) {
     try {
         const command = new ScanCommand({
             TableName: tableName,
-            ProjectionExpression: 'ID',
+            ProjectionExpression: "ID",
         });
 
         const response = await documentClient.send(command);
         const coursesList = [];
-        for (const item of response.Items) {
-            const course = await getItemDB(item['ID'], tableName);
+        await Promise.all(response.Items.map(async (item) => {
+            const course = await getItemDB(item.ID, tableName);
             if (course)
-                coursesList.push(course['Item']);
-        }
+                coursesList.push(course.Item);
+        }));
         return coursesList;
     } catch (err) {
         return {error: err.message};
@@ -152,7 +151,7 @@ async function deleteItemDB(id, tableName) {
         const command = new DeleteCommand({
             TableName: tableName,
             Key: {
-                ID: id,
+                ID: Number(id)
             },
         });
 

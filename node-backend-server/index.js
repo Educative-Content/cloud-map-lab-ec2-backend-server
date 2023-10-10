@@ -317,7 +317,7 @@ async function requestHandler(query) {
     } 
 };
 
-// Handling all client requests through one endpoint
+// Handling all the main client requests through one endpoint
 app.all('/', async function(req, res, next) {
     try {
       const resObj = await requestHandler(req.query);
@@ -330,8 +330,14 @@ app.all('/', async function(req, res, next) {
       res.status(404).send({'message': `API server not reachable ${err}`});
     }
     next();
-  });
-  
+});
+
+// Creating endpoint to verify if server is running
+app.all('/test', async function(req, res, next) {
+    res.status(200).send("Backend server is up and running");
+    next();
+});
+
 // Starting Express server
 app.listen(port);
 console.log(`Server started at http://localhost:${port}`);
